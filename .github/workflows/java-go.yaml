@@ -36,7 +36,12 @@ jobs:
         - uses: actions/setup-go@v2
           with:
             go-version: '1.13.1' # The Go version to download (if necessary) and use.
-        - run: go version
+        - name: Test go version
+          run: go version
+        - name: Get dependencies
+          run: go get 
+        - name: Test
+          run: go test -v -ginkgo.noColor -ginkgo.dryRun
   slack-notify:
     runs-on: ubuntu-latest
     steps:
