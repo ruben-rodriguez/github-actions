@@ -42,7 +42,7 @@ jobs:
           run: go get 
         - name: Test DryRun
           run: go test -v -ginkgo.noColor -ginkgo.dryRun
-        - name: Test DryRun
+        - name: Test
           run: go test -v -ginkgo.noColor
         - name: Notify slack success
           if: success()
