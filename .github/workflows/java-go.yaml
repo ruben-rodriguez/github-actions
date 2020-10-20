@@ -38,6 +38,7 @@ jobs:
             go-version: '1.13.1' # The Go version to download (if necessary) and use.
         - run: go version
   slack-notify:
+    runs-on: ubuntu-latest
     steps:
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@master
