@@ -20,7 +20,7 @@ var _ = Describe("Greeter Test", func() {
 	// Test will fail
 	It("Should format my name", func() {
 		out, err := greeter.Greet(&GreeterInput{
-			Name: "Rubenn",
+			Name: "World",
 		})
 		Expect(err).To(BeNil())
 		Expect(out).To(Equal(&GreeterOutput{
