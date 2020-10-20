@@ -40,8 +40,10 @@ jobs:
           run: go version
         - name: Get dependencies
           run: go get 
-        - name: Test
+        - name: Test DryRun
           run: go test -v -ginkgo.noColor -ginkgo.dryRun
+        - name: Test DryRun
+          run: go test -v -ginkgo.noColor
         - name: Notify slack success
           if: success()
           env:
