@@ -38,13 +38,14 @@ jobs:
             go-version: '1.13.1' # The Go version to download (if necessary) and use.
         - run: go version
   slack-notify:
-    - name: Slack Notification
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_CHANNEL: builds
-        SLACK_COLOR: '#3278BD'
-        SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
-        SLACK_MESSAGE: 'Post Content :rocket:'
-        SLACK_TITLE: Post Title
-        SLACK_USERNAME: GitHub Build
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_CHANNEL: builds
+          SLACK_COLOR: '#3278BD'
+          SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
+          SLACK_MESSAGE: 'Post Content :rocket:'
+          SLACK_TITLE: Post Title
+          SLACK_USERNAME: GitHub Build
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
