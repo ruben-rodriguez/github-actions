@@ -60,16 +60,16 @@ jobs:
             channel: builds
             status: FAILED
             color: danger
-  slack-notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@master
-        env:
-          SLACK_CHANNEL: builds
-          SLACK_COLOR: '#3278BD'
-          SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
-          SLACK_MESSAGE: 'Post Content :rocket:'
-          SLACK_TITLE: Post Title
-          SLACK_USERNAME: GitHub Build
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#  slack-notify:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@master
+#        env:
+#          SLACK_CHANNEL: builds
+#          SLACK_COLOR: '#3278BD'
+#          SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
+#          SLACK_MESSAGE: 'Post Content :rocket:'
+#          SLACK_TITLE: Post Title
+#          SLACK_USERNAME: GitHub Build
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
