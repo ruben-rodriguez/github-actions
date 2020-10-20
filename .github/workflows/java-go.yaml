@@ -42,6 +42,24 @@ jobs:
           run: go get 
         - name: Test
           run: go test -v -ginkgo.noColor -ginkgo.dryRun
+        - name: Notify slack success
+          if: success()
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            channel: app-alerts
+            status: SUCCESS
+            color: good
+        - name: Notify slack fail
+          if: failure()
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            channel: app-alerts
+            status: FAILED
+            color: danger
   slack-notify:
     runs-on: ubuntu-latest
     steps:
