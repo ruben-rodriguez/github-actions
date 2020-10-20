@@ -35,16 +35,43 @@ jobs:
         - uses: actions/checkout@v2
         - uses: actions/setup-go@v2
           with:
-            go-version: '1.13.1' # The Go version to download (if necessary) and use.
-        - run: go version
-  slack-notify:
-    - name: Slack Notification
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_CHANNEL: builds
-        SLACK_COLOR: '#3278BD'
-        SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
-        SLACK_MESSAGE: 'Post Content :rocket:'
-        SLACK_TITLE: Post Title
-        SLACK_USERNAME: GitHub Build
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            go-version: '1.13.1'
+        - name: Test go version
+          run: go version
+        - name: Get dependencies
+          run: go get 
+        - name: Test DryRun
+          run: go test -v -ginkgo.noColor -ginkgo.dryRun
+        - name: Test
+          run: go test -v -ginkgo.noColor
+        - name: Notify slack success
+          if: success()
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            channel: builds
+            status: SUCCESS
+            color: good
+        - name: Notify slack fail
+          if: failure()
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            channel: builds
+            status: FAILED
+            color: danger
+#  slack-notify:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Slack Notification
+#        uses: rtCamp/action-slack-notify@master
+#        env:
+#          SLACK_CHANNEL: builds
+#          SLACK_COLOR: '#3278BD'
+#          SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
+#          SLACK_MESSAGE: 'Post Content :rocket:'
+#          SLACK_TITLE: Post Title
+#          SLACK_USERNAME: GitHub Build
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
