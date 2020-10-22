@@ -33,7 +33,7 @@ jobs:
             wget -qO - https://api.bintray.com/users/sobolevn/keys/gpg/public.key | sudo apt-key add -
             sudo apt-get update && sudo apt-get install git-secret
             git secret reveal
-            cat ../../secrets/secret.secret
+            cat ../../secrets/secret
   go:
     runs-on: ubuntu-latest
     strategy:
