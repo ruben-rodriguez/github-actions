@@ -21,17 +21,11 @@ jobs:
           run: |
             export $(grep -v '#.*' .env | xargs)
             echo $TEST
-        - name: Install
+        - name: Maven install, package and test
           run: |
             export $(grep -v '#.*' .env | xargs)
             mvn clean install
-        - name: Build
-          run: |
-            export $(grep -v '#.*' .env | xargs)
             mvn package
-        - name: Test
-          run: |
-            export $(grep -v '#.*' .env | xargs)
             mvn test
         - name: Install git-secrets & reveal a secret
           env:
@@ -83,16 +77,22 @@ jobs:
             channel: builds
             status: FAILED
             color: danger
-#  slack-notify:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Slack Notification
-#        uses: rtCamp/action-slack-notify@master
-#        env:
-#          SLACK_CHANNEL: builds
-#          SLACK_COLOR: '#3278BD'
-#          SLACK_ICON: https://github.com/ruben-rodriguez.png?size=48
-#          SLACK_MESSAGE: 'Post Content :rocket:'
-#          SLACK_TITLE: Post Title
-#          SLACK_USERNAME: GitHub Build
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            
+  build-java:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Build Java apps
+    needs: Java
+    steps:
+      - name: Check build matrix status
+        if: ${{ needs.Java.result != 'success' }}
+        run: exit 1
+  build-go:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Build go apps
+    needs: go
+    steps:
+      - name: Check build matrix status
+        if: ${{ needs.go.result != 'success' }}
+        run: exit 1
