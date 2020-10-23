@@ -17,16 +17,16 @@ jobs:
           uses: actions/setup-java@v1
           with:
             java-version: 1.8
+        - name: Load and print env variable
+          run: |
+            export $(grep -v '#.*' .env | xargs)
+            echo $TEST
         - name: Install
           run: mvn clean install
         - name: Build
           run: mvn package
         - name: Test
           run: mvn test
-        - name: Load and print env variable
-          run: |
-            export $(grep -v '#.*' .env | xargs)
-            echo $TEST
         - name: Install git-secrets & reveal a secret
           env:
             GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
