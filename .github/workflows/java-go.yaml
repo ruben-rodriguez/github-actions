@@ -83,6 +83,25 @@ jobs:
             channel: builds
             status: FAILED
             color: danger
+            
+  build-java:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Build Java apps
+    needs: Java
+    steps:
+      - name: Check build matrix status
+        if: ${{ needs.Java.result != 'success' }}
+        run: exit 1
+  build-go:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Build go apps
+    needs: go
+    steps:
+      - name: Check build matrix status
+        if: ${{ needs.go.result != 'success' }}
+        run: exit 1
 #  slack-notify:
 #    runs-on: ubuntu-latest
 #    steps:
