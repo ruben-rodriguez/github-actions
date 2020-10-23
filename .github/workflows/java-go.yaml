@@ -21,17 +21,11 @@ jobs:
           run: |
             export $(grep -v '#.*' .env | xargs)
             echo $TEST
-        - name: Install
+        - name: Maven install, package and test
           run: |
             export $(grep -v '#.*' .env | xargs)
             mvn clean install
-        - name: Build
-          run: |
-            export $(grep -v '#.*' .env | xargs)
             mvn package
-        - name: Test
-          run: |
-            export $(grep -v '#.*' .env | xargs)
             mvn test
         - name: Install git-secrets & reveal a secret
           env:
