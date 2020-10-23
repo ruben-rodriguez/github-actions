@@ -24,7 +24,9 @@ jobs:
         - name: Test
           run: mvn test
         - name: Load and print env variable
-          run: echo $TEST
+          run: |
+            export $(grep -v '#.*' .env | xargs)
+            echo $TEST
         - name: Install git-secrets & reveal a secret
           env:
             GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
