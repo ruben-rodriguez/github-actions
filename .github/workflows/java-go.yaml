@@ -22,11 +22,17 @@ jobs:
             export $(grep -v '#.*' .env | xargs)
             echo $TEST
         - name: Install
-          run: mvn clean install
+          run: |
+            export $(grep -v '#.*' .env | xargs)
+            mvn clean install
         - name: Build
-          run: mvn package
+          run: |
+            export $(grep -v '#.*' .env | xargs)
+            mvn package
         - name: Test
-          run: mvn test
+          run: |
+            export $(grep -v '#.*' .env | xargs)
+            mvn test
         - name: Install git-secrets & reveal a secret
           env:
             GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
