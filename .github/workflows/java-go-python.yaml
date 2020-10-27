@@ -125,7 +125,7 @@ jobs:
     
   generate_report:
     if: always()
-    needs: [test] 
+    needs: [build-python] 
     runs-on: ubuntu-latest
     steps:
     - name: Download reports
