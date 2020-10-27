@@ -115,12 +115,11 @@ jobs:
         run: mkdir reports
       - name: Run Robot Framework
         run: |
-        docker run \
-          -v ${PWD}/reports:/opt/robotframework/reports:Z \
-          -v ${PWD}/robot-tests:/opt/robotframework/tests:Z \
-          -e ROBOT_OPTIONS="--variable DINOSAUR:Achillobator --variable NOT_DINOSAUR:kissa" \
-          --user $(id -u):$(id -g) \
-          ppodgorsek/robot-framework:latest
+          docker run \
+            -v ${PWD}/reports:/opt/robotframework/reports:Z \
+            -v ${PWD}/robot-tests:/opt/robotframework/tests:Z \
+            --user $(id -u):$(id -g) \
+            ppodgorsek/robot-framework:latest
       - name: Upload test results
         uses: actions/upload-artifact@v1
         if: always()
