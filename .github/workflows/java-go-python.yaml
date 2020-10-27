@@ -72,24 +72,6 @@ jobs:
         run: go test -v -ginkgo.noColor -ginkgo.dryRun
       - name: Test
         run: go test -v -ginkgo.noColor
-      - name: Notify slack success
-        if: success()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel: builds
-          status: SUCCESS
-          color: good
-      - name: Notify slack fail
-        if: failure()
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
-        with:
-          channel: builds
-          status: FAILED
-          color: danger
 
   build-java:
     if: ${{ always() }}
@@ -167,6 +149,7 @@ jobs:
           REPORT_PATH: reports
   slack-notify-end:
     runs-on: ubuntu-latest
+    needs: [build-go, build-java, build-python]
     steps:
       - name: Notify slack success
         if: success()
