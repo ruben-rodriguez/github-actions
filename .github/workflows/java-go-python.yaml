@@ -75,26 +75,7 @@ jobs:
       - name: Test
         run: go test -v -ginkgo.noColor
 
-  build-java:
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    name: Build Java apps
-    needs: Java
-    steps:
-      - name: Check build matrix status
-        if: ${{ needs.Java.result != 'success' }}
-        run: exit 1
-  build-go:
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    name: Build go apps
-    needs: go
-    steps:
-      - name: Check build matrix status
-        if: ${{ needs.go.result != 'success' }}
-        run: exit 1
-
-  build-python:
+  python:
     runs-on: ubuntu-latest
     name: Build Python and Run Robot Framework Tests
     steps:
@@ -126,9 +107,25 @@ jobs:
           name: reports
           path: ${{ github.workspace }}/reports
 
+  check:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Build go apps
+    needs: [go, Java]
+    steps:
+      - name: Check build matrix go status
+        if: ${{ needs.go.result != 'success' }}
+        run: exit 1
+      - name: Check build matrix java status
+        if: ${{ needs.Java.result != 'success' }}
+        run: exit 1
+      - name: Check build matrix python status
+        if: ${{ needs.python.result != 'success' }}
+        run: exit 1
+
   generate_report:
     if: always()
-    needs: [build-python]
+    needs: [python]
     runs-on: ubuntu-latest
     steps:
       - name: Download reports
@@ -151,10 +148,10 @@ jobs:
           REPORT_PATH: reports
   slack-notify-end:
     runs-on: ubuntu-latest
-    needs: [build-go, build-java, build-python, slack-notify-start]
+    needs: [check, slack-notify-start]
     steps:
-      - name: Notify slack success
-        if: success()
+      - name: Notify slack success 
+        if: ${{ needs.check.result == 'success' }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
@@ -164,7 +161,7 @@ jobs:
           status: SUCCESS
           color: good
       - name: Notify slack fail
-        if: failure()
+        if: ${{ needs.check.result != 'success' }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
