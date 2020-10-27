@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   slack-notify-start:
     runs-on: ubuntu-latest
+    outputs:
+      msgid: ${{ steps.slack.outputs.message_id }}
     steps:
       - name: Notify slack success
         if: success()
@@ -157,7 +159,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          message_id: ${{jobs.slack-notify-start.steps.slack.outputs.message_id }}
+          message_id: ${{ slack-notify-start.outputs.msgid }}
           channel: builds
           status: SUCCESS
           color: good
@@ -167,7 +169,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          message_id: ${{ jobs.slack-notify-start.steps.slack.outputs.message_id }}
+          message_id: ${{ slack-notify-start.outputs.msgid }}
           channel: builds
           status: FAILED
           color: danger
