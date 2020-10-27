@@ -110,7 +110,7 @@ jobs:
       - name: Install requirements and start server
         run: |
           pip install -r requirements.txt
-          python app/server.py
+          nohup python app/server.py &
       - name: Robot Framework
         uses: joonvena/robotframework-docker-action@v0.1
         env:
