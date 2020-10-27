@@ -119,6 +119,7 @@ jobs:
           docker run \
             -v ${PWD}/reports:/opt/robotframework/reports:Z \
             -v ${PWD}/robot-tests:/opt/robotframework/tests:Z \
+            --network host \
             --user $(id -u):$(id -g) \
             ppodgorsek/robot-framework:latest
       - name: Upload test results
