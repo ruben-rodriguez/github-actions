@@ -3,6 +3,17 @@ name: Build and test folder organized Java and go apps
 on: [push, pull_request]
 
 jobs:
+  slack-notify-start:
+    - name: Notify slack success
+      if: success()
+      id: slack # IMPORTANT: reference this step ID value in future Slack steps
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel: builds
+        status: STARTING
+        color: warning
   Java:
     runs-on: ubuntu-latest
     strategy:
@@ -152,3 +163,24 @@ jobs:
         COMMIT_SHA: ${{ github.sha }}
         REPOSITORY: ${{ env.REPOSITORY_NAME }}
         REPORT_PATH: reports
+  slack-notify-end:
+    - name: Notify slack success
+      if: success()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel: builds
+        status: SUCCESS
+        color: good
+    - name: Notify slack fail
+      if: failure()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: builds
+          status: FAILED
+          color: danger
