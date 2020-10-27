@@ -151,7 +151,7 @@ jobs:
           REPORT_PATH: reports
   slack-notify-end:
     runs-on: ubuntu-latest
-    needs: [build-go, build-java, build-python]
+    needs: [build-go, build-java, build-python, slack-notify-start]
     steps:
       - name: Notify slack success
         if: success()
