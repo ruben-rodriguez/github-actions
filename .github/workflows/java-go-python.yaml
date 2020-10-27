@@ -157,7 +157,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          message_id: ${{ slack-notify-start.steps.slack.outputs.message_id }}
+          message_id: ${{jobs.slack-notify-start.steps.slack.outputs.message_id }}
           channel: builds
           status: SUCCESS
           color: good
@@ -167,7 +167,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          message_id: ${{ slack-notify-start.steps.slack.outputs.message_id }}
+          message_id: ${{ jobs.slack-notify-start.steps.slack.outputs.message_id }}
           channel: builds
           status: FAILED
           color: danger
