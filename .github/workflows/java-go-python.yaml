@@ -1,4 +1,4 @@
-name: Build and test folder organized Java and go apps
+name: Build and test apps
 
 on: [push, pull_request]
 
@@ -18,7 +18,7 @@ jobs:
           channel: builds
           status: STARTING
           color: warning
-  Java:
+  java:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -110,14 +110,14 @@ jobs:
   check:
     if: ${{ always() }}
     runs-on: ubuntu-latest
-    name: Build go apps
-    needs: [go, Java]
+    name: Check success
+    needs: [go, java, python]
     steps:
       - name: Check build matrix go status
         if: ${{ needs.go.result != 'success' }}
         run: exit 1
       - name: Check build matrix java status
-        if: ${{ needs.Java.result != 'success' }}
+        if: ${{ needs.java.result != 'success' }}
         run: exit 1
       - name: Check build matrix python status
         if: ${{ needs.python.result != 'success' }}
