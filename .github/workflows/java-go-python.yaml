@@ -1,103 +1,81 @@
-name: Build and test folder organized Java and go apps
+name: Build and test apps
 
 on: [push, pull_request]
 
 jobs:
-  Java:
+  slack-notify-start:
+    runs-on: ubuntu-latest
+    outputs:
+      msgid: ${{ steps.slack.outputs.message_id }}
+    steps:
+      - name: Notify slack success
+        if: success()
+        id: slack # IMPORTANT: reference this step ID value in future Slack steps
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: builds
+          status: STARTING
+          color: warning
+  java:
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-          javaApps: [java-apps/test, java-apps/HelloWorld]
+      matrix:
+        javaApps: [java-apps/test, java-apps/HelloWorld]
     defaults:
-        run:
-            working-directory: ${{ matrix.javaApps }}
+      run:
+        working-directory: ${{ matrix.javaApps }}
     steps:
-        - uses: actions/checkout@v2
-        - name: Set up JDK 1.8
-          uses: actions/setup-java@v1
-          with:
-            java-version: 1.8
-        - name: Load and print env variable
-          run: |
-            export $(grep -v '#.*' .env | xargs)
-            echo $TEST
-        - name: Maven install, package and test
-          run: |
-            export $(grep -v '#.*' .env | xargs)
-            mvn clean install
-            mvn package
-            mvn test
-        - name: Install git-secrets & reveal a secret
-          env:
-            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          run: |
-            echo $GPG_PRIVATE_KEY | tr ',' '\n' > ./private_key.gpg
-            gpg --import ./private_key.gpg
-            echo "deb https://dl.bintray.com/sobolevn/deb git-secret main" | sudo tee -a /etc/apt/sources.list
-            wget -qO - https://api.bintray.com/users/sobolevn/keys/gpg/public.key | sudo apt-key add -
-            sudo apt-get update && sudo apt-get install git-secret
-            git secret reveal
-            cat ../../secrets/secret
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Load and print env variable
+        run: |
+          export $(grep -v '#.*' .env | xargs)
+          echo $TEST
+      - name: Maven install, package and test
+        run: |
+          export $(grep -v '#.*' .env | xargs)
+          mvn clean install
+          mvn package
+          mvn test
+      - name: Install git-secrets & reveal a secret
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo $GPG_PRIVATE_KEY | tr ',' '\n' > ./private_key.gpg
+          gpg --import ./private_key.gpg
+          echo "deb https://dl.bintray.com/sobolevn/deb git-secret main" | sudo tee -a /etc/apt/sources.list
+          wget -qO - https://api.bintray.com/users/sobolevn/keys/gpg/public.key | sudo apt-key add -
+          sudo apt-get update && sudo apt-get install git-secret
+          git secret reveal
+          cat ../../secrets/secret
   go:
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-            goApps: [go-apps/go/hello, go-apps/go/hello2]
+      matrix:
+        goApps: [go-apps/go/hello, go-apps/go/hello2]
     defaults:
-        run:
-            working-directory: ${{ matrix.goApps }}
+      run:
+        working-directory: ${{ matrix.goApps }}
     steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-go@v2
-          with:
-            go-version: '1.13.1'
-        - name: Test go version
-          run: go version
-        - name: Get dependencies
-          run: go get 
-        - name: Test DryRun
-          run: go test -v -ginkgo.noColor -ginkgo.dryRun
-        - name: Test
-          run: go test -v -ginkgo.noColor
-        - name: Notify slack success
-          if: success()
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          uses: voxmedia/github-action-slack-notify-build@v1
-          with:
-            channel: builds
-            status: SUCCESS
-            color: good
-        - name: Notify slack fail
-          if: failure()
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          uses: voxmedia/github-action-slack-notify-build@v1
-          with:
-            channel: builds
-            status: FAILED
-            color: danger
-            
-  build-java:
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    name: Build Java apps
-    needs: Java
-    steps:
-      - name: Check build matrix status
-        if: ${{ needs.Java.result != 'success' }}
-        run: exit 1
-  build-go:
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    name: Build go apps
-    needs: go
-    steps:
-      - name: Check build matrix status
-        if: ${{ needs.go.result != 'success' }}
-        run: exit 1
-  
-  build-python:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.13.1"
+      - name: Test go version
+        run: go version
+      - name: Get dependencies
+        run: go get
+      - name: Test DryRun
+        run: go test -v -ginkgo.noColor -ginkgo.dryRun
+      - name: Test
+        run: go test -v -ginkgo.noColor
+
+  python:
     runs-on: ubuntu-latest
     name: Build Python and Run Robot Framework Tests
     steps:
@@ -128,27 +106,69 @@ jobs:
         with:
           name: reports
           path: ${{ github.workspace }}/reports
-    
+
+  check:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Check success
+    needs: [go, java, python]
+    steps:
+      - name: Check build matrix go status
+        if: ${{ needs.go.result != 'success' }}
+        run: exit 1
+      - name: Check build matrix java status
+        if: ${{ needs.java.result != 'success' }}
+        run: exit 1
+      - name: Check build matrix python status
+        if: ${{ needs.python.result != 'success' }}
+        run: exit 1
+
   generate_report:
     if: always()
-    needs: [build-python] 
+    needs: [python]
     runs-on: ubuntu-latest
     steps:
-    - name: Download reports
-      uses: actions/download-artifact@v1
-      with:
-        name: reports
-    - name: Get Repository Owner & Name
-      run: |
-        export OWNER="$(echo "${{ github.repository }}" | awk -F / '{print $1}' | sed -e "s/:refs//")"
-        export REPO="$(echo "${{ github.repository }}" | awk -F / '{print $2}' | sed -e "s/:refs//")"
-        echo "::set-env name=REPOSITORY_OWNER::$OWNER"
-        echo "::set-env name=REPOSITORY_NAME::$REPO"
-    - name: Send report to commit
-      uses: joonvena/robotframework-reporter-action@v0.1
-      env:
-        GH_ACCESS_TOKEN: ${{ secrets.TOKEN }}
-        REPO_OWNER: ${{ env.REPOSITORY_OWNER }}
-        COMMIT_SHA: ${{ github.sha }}
-        REPOSITORY: ${{ env.REPOSITORY_NAME }}
-        REPORT_PATH: reports
+      - name: Download reports
+        uses: actions/download-artifact@v1
+        with:
+          name: reports
+      - name: Get Repository Owner & Name
+        run: |
+          export OWNER="$(echo "${{ github.repository }}" | awk -F / '{print $1}' | sed -e "s/:refs//")"
+          export REPO="$(echo "${{ github.repository }}" | awk -F / '{print $2}' | sed -e "s/:refs//")"
+          echo "::set-env name=REPOSITORY_OWNER::$OWNER"
+          echo "::set-env name=REPOSITORY_NAME::$REPO"
+      - name: Send report to commit
+        uses: joonvena/robotframework-reporter-action@v0.1
+        env:
+          GH_ACCESS_TOKEN: ${{ secrets.TOKEN }}
+          REPO_OWNER: ${{ env.REPOSITORY_OWNER }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ env.REPOSITORY_NAME }}
+          REPORT_PATH: reports
+
+  slack-notify-end:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: [check, slack-notify-start]
+    steps:
+      - name: Notify slack success 
+        if: ${{ needs.check.result == 'success' }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          message_id: ${{ needs.slack-notify-start.outputs.msgid }}
+          channel: builds
+          status: SUCCESS
+          color: good
+      - name: Notify slack fail
+        if: ${{ needs.check.result != 'success' }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          message_id: ${{ needs.slack-notify-start.outputs.msgid }}
+          channel: builds
+          status: FAILED
+          color: danger
