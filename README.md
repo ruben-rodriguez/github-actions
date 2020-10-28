@@ -23,7 +23,7 @@ Please note this is still a work in progress exercise, hence might contain some 
 └── *.env: environment files
 ```
 
-### Workflow Description
+### Main Workflow Description
 
 The defined main workflow  ```java-go-python.yaml``` (there is a side workflow for Slack notifications on PRs) will be triggered when push or pull request events are fired on any branch:
 
@@ -56,6 +56,18 @@ It contains the following jobs (summary):
 ![](./images/slack-notifications-success.png)
 
 ![](./images/slack-notification-fail.png)
+
+### Slack PR notification Workflow Description
+
+This workflow is used to notify on PR open and reopen events:
+
+```yaml
+on:
+  pull_request:
+    types: [opened, reopened]
+```
+
+![](./images/slack-notification-pr.png)
 
 ### GitHub Actions features leveraged by this workflow
 
