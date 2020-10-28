@@ -15,7 +15,7 @@ Please note this is still a work in progress exercise, hence might contain some 
 ├── go-apps: go simple apps to build and test.
 │   ├── hello: Hello World Go application and test suite.
 │   ├── hello2: Clone of previous Hello World Go application and test suite.
-├── java-apps: java simple spring apps and tests; each app loads different env variables forom .env file.
+├── java-apps: java simple spring apps and tests; each app loads different env variables from .env file.
 │   ├── HelloWorld: Hello World Java application and test suite.
 │   └── test: Clone of previous Hello World Java. application and test suite.
 ├── robot-tests : Robot Framework sample tests for the Python Webapp Demo.
@@ -25,7 +25,7 @@ Please note this is still a work in progress exercise, hence might contain some 
 
 ### Workflow Description
 
-The defined workflow  ```java-go-python.yaml``` (in this case there is only one global workflow) will be triggered when push or pull request events are fired:
+The defined workflow  ```java-go-python.yaml``` (in this case there is only one global workflow) will be triggered when push or pull request events are fired on any branch:
 
 ```yaml
 name: Build and test apps
@@ -35,7 +35,7 @@ on: [push, pull_request]
 
 It contains the following jobs (summary):
 
-- **slack-notify-start**: sends a notification to **#builds** slack channel when workflow starts.
+- **slack-notify-start**: sends a notification to **#builds** slack channel when workflow starts:
 
 ![](./images/slack-notification-start.png)
 
@@ -44,11 +44,11 @@ It contains the following jobs (summary):
 - **python**: runs and test Python demo WebApp using Robot Framework. It uploads Robot Framework reports to ```/reports``` folder created at workflow execution time.
 - **check**: this job is always executed regardless other jobs' finish status. It checks that the core jobs (go, java, python) finish correctly without errors. It is then required by branch policy to merge pull requests.
 
-- **generate_report**: fetches Robot Framework results from ```/reports``` folder and appends the results to commit message.
+- **generate_report**: fetches Robot Framework results from ```/reports``` folder and appends the results to commit message:
 
 ![](./images/robot-results.png)
 
-- **slack-notify-end:** this job is always executed and checks the **check** job to update the slack notification previously sent appropriately (success or failure)
+- **slack-notify-end:** this job is always executed and checks the **check** job to update the slack notification previously sent appropriately (success or failure):
 
 ![](./images/slack-notifications-success.png)
 
