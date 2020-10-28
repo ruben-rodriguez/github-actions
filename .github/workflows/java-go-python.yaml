@@ -146,7 +146,9 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
           REPOSITORY: ${{ env.REPOSITORY_NAME }}
           REPORT_PATH: reports
+
   slack-notify-end:
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     needs: [check, slack-notify-start]
     steps:
