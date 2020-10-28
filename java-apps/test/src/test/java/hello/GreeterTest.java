@@ -16,6 +16,6 @@ public class GreeterTest {
 
   @Test
   public void greeterExpectedEnv() {
-    assertThat(greeter.getEnv(), containsString("javaaapp1"));
+    assertThat(greeter.getEnv(), containsString("javaapp1"));
   }
 }
