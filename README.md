@@ -25,7 +25,7 @@ Please note this is still a work in progress exercise, hence might contain some 
 
 ### Workflow Description
 
-The defined workflow  ```java-go-python.yaml``` (in this case there is only one global workflow) will be triggered when push or pull request events are fired on any branch:
+The defined main workflow  ```java-go-python.yaml``` (there is a side workflow for Slack notifications on PRs) will be triggered when push or pull request events are fired on any branch:
 
 ```yaml
 name: Build and test apps
@@ -40,8 +40,11 @@ It contains the following jobs (summary):
 ![](./images/slack-notification-start.png)
 
 - **java**: leverages matrix strategy to build and test all java apps organized in different folders. It executes mvn commands and reveals git secrets.
+
 - **go**: leverages matrix strategy to build and test all go apps organized in different folders. It executes go commands.
+
 - **python**: runs and test Python demo WebApp using Robot Framework. It uploads Robot Framework reports to ```/reports``` folder created at workflow execution time.
+
 - **check**: this job is always executed regardless other jobs' finish status. It checks that the core jobs (go, java, python) finish correctly without errors. It is then required by branch policy to merge pull requests.
 
 - **generate_report**: fetches Robot Framework results from ```/reports``` folder and appends the results to commit message:
@@ -57,7 +60,7 @@ It contains the following jobs (summary):
 ### GitHub Actions features leveraged by this workflow
 
 - Job status verification: 
-  
+
 ```yaml
 if: ${{ success() }}
 ```
@@ -146,12 +149,14 @@ on:
 
 - [voxmedia/github-action-slack-notify-build: Report GitHub Actions build status on Slack](https://github.com/voxmedia/github-action-slack-notify-build)
 
+- [jun3453/slack-pr-open-notification-action: Use github actions to notify slack that a pull request has been opened.](https://github.com/jun3453/slack-pr-open-notification-action)
+
 ### References
 
 - [GitHub Actions - GitHub Docs](https://docs.github.com/es/free-pro-team@latest/actions)
-  
+
 - [GitHub Actions Job outputs](https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action)
-  
+
 - [Robot Framework WebDemo](https://github.com/robotframework/WebDemo)
-  
+
 - [Robot Docker Demo workflow](https://github.com/laojala/robot_docker_demo)
