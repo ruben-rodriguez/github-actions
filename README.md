@@ -23,7 +23,7 @@ Please note this is still a work in progress exercise, hence might contain some 
 └── *.env: environment files
 ```
 
-### Main Workflow Description
+#### Main Workflow Description
 
 The defined main workflow  ```java-go-python.yaml``` (there is a side workflow for Slack notifications on PRs) will be triggered when push or pull request events are fired on any branch:
 
