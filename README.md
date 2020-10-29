@@ -67,8 +67,6 @@ on:
     types: [opened, reopened]
 ```
 
-![](./images/slack-notification-pr.png)
-
 ### GitHub Actions features leveraged by this workflow
 
 - Job status verification: 
