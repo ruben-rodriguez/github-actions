@@ -1,6 +1,6 @@
-name: Build and test apps
+name: Pull Request Workflow
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   slack-notify-start:
