@@ -1,0 +1,45 @@
+name: Build and test apps
+
+on: [push]
+
+jobs:
+    prejob: 
+        runs-on: ubuntu-latest
+        outputs:
+          matrix: ${{ steps.set-matrix.outputs.matrix }}
+        steps:
+            - name: set matrix
+              id: set-matrix
+              run: echo "::set-output name=matrix::[hello, hello2]"
+    go:
+        needs: [prejob]
+        runs-on: ubuntu-latest
+        strategy:
+            matrix: ${{ needs.prejob.outputs.matrix }}
+   
+        # GG2: This should do the trick. To check.
+        # RR: This approach does not work as of 03112020: unknown key value ref inside if expresion: 
+        if: contains(github.ref, ${{ matrix }})
+        defaults:
+          run:
+            ## GG3: does this work?
+            working-directory: ./go-apps/go/${{ matrix.goApps }}/app/cmd/${{ matrix.goApps }}
+        steps:
+        
+          - name: Dump matrix context
+            env:
+               MATRIX_CONTEXT: ${{ matrix }}
+            run: echo "$MATRIX_CONTEXT"
+          - uses: actions/checkout@v2
+          - uses: actions/setup-go@v2
+            with:
+              go-version: "1.13.1"
+          - name: Test go version
+            run: go version
+          - name: Get dependencies
+            run: go get
+          - name: Test DryRun
+            run: go test -v -ginkgo.noColor -ginkgo.dryRun
+          - name: Test
+            run: go test -v -ginkgo.noColor
+        

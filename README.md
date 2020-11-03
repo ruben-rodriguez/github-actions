@@ -2,7 +2,7 @@
 
 This repository contains some sample apps and associated test suites written in different languages (Java, Go and Python), organized in folders.
 The purpose is quite simple: test and discover GitHub Actions workflow features, capabilities and potential limitations.
-Please note this is still a work in progress exercise, hence might contain some errors and other hiccups, and is subject to change.
+Please note this is still a work in progress exercise, hence might contain some errors and other hiccups, and is subject to change. Also, keep in mind GitHub Actions is a recent feature which is still evolving and adding / changing different features.
 
 ### Repository structure:
 
@@ -23,14 +23,24 @@ Please note this is still a work in progress exercise, hence might contain some 
 └── *.env: environment files
 ```
 
-### Main Workflow Description
+### Workflows
 
-The defined main workflow  ```java-go-python.yaml``` (there is a side workflow for Slack notifications on PRs) will be triggered when push or pull request events are fired on any branch:
+Currently, there are 3 different workflows defined in this repository:
+
+- **Pull Request Workflow** (```pull-reques.yaml```): triggered on pull request events, executes all tests defined for all exisiting applications.
+
+- **Push Go Workflow** (```go-app.yaml```): triggered on push events, check branch name for existing Go application name and executes tests appropriately. Branch naming convention: ```<app-name>/<feature-name>```
+
+- **Slack PR Notification Workflow** (```slack-pr-notification.yaml```): triggered on pull request events, notfies Slack #review channel of new opened Pull Requests. 
+
+### Pull Request Workflow
+
+Triggered on pull request events, executes all tests defined for all exisiting applications.
 
 ```yaml
 name: Build and test apps
 
-on: [push, pull_request]
+on: [pull_request]
 ```
 
 It contains the following jobs (summary):
@@ -68,6 +78,36 @@ on:
 ```
 
 ![](./images/slack-notification-pr.png)
+
+
+
+### Push Go Workflow
+
+Triggered on push events, check branch name for existing Go application name and executes tests appropriately. Branch naming convention: `<app-name>/<feature-name>`
+
+It contains the following jobs (summary):
+
+- **check-app:** checks branch name and tries to locate a folder with its name. If found, sets working dir variable taken in the next step.
+
+```yaml
+- name: Check if dir exists
+              id: dir_exists
+              run: |
+                file ./go-apps/go/"${{ env.APP_NAME }}" | grep "No such" | wc -l
+                echo "::set-output name=dir_exists::$(file ./go-apps/go/"${{ env.APP_NAME }}" | grep "No such" | wc -l)"
+```
+
+- **go-test:** if previous job outputs that there is a folder in the go apps directory matching branch naming convention, it sets the working dir to the one set in previous job; then executes slack notification and go command steps.
+
+```yaml
+go-test:
+      if: ${{ needs.check-app.outputs.dir_exists  == '0' }} 
+      runs-on: ubuntu-latest
+      needs: [check-app]
+      defaults:
+        run:
+          working-directory: ${{ needs.check-app.outputs.dir }}
+```
 
 ### GitHub Actions features leveraged by this workflow
 
