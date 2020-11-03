@@ -6,7 +6,7 @@ jobs:
     prejob: 
         runs-on: ubuntu-latest
         outputs:
-          matrix: ${{ steps.set-matrix1.outputs.matrix }}
+          matrix: ${{ steps.set-matrix.outputs.matrix }}
         steps:
             - name: set matrix
               id: set-matrix
@@ -16,13 +16,9 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix: ${{ needs.prejob.outputs.matrix }}
-        # The branch or tag ref that triggered the workflow run.
-        # For branches this in the format refs/heads/,
-        # and for tags it is refs/tags/.
-        # GG1: so this seems can be used used to do one thing when
-        # it is a tag or another when it is a normal push
-        #
+   
         # GG2: This should do the trick. To check.
+        # RR: This approach does not work as of 03112020: unknown key value ref inside if expresion: 
         if: contains(github.ref, ${{ matrix }})
         defaults:
           run:
