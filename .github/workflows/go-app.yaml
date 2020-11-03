@@ -33,6 +33,16 @@ jobs:
         run:
           working-directory: ${{ needs.check-app.outputs.dir }}
       steps:
+        - name: Notify slack start
+          if: success()
+          id: slack # IMPORTANT: reference this step ID value in future Slack steps
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            channel: builds
+            status: STARTING
+            color: warning
         - uses: actions/checkout@v2
         - uses: actions/setup-go@v2
           with:
@@ -45,3 +55,23 @@ jobs:
           run: go test -v -ginkgo.noColor -ginkgo.dryRun
         - name: Test
           run: go test -v -ginkgo.noColor
+        - name: Notify slack success 
+          if: ${{ success() }}
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            message_id: ${{ steps.slack.outputs.msgid }}
+            channel: builds
+            status: SUCCESS
+            color: good
+        - name: Notify slack fail
+          if: ${{ failure() }}
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          uses: voxmedia/github-action-slack-notify-build@v1
+          with:
+            message_id: ${{ steps.slack.outputs.msgid  }}
+            channel: builds
+            status: FAILED
+            color: danger
