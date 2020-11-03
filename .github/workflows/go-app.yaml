@@ -36,7 +36,17 @@ jobs:
               if: ${{ steps.outputs.dir_exists }} == 0
               id: dir
               run: echo "::set-output name=dir::./go-apps/go/${{ env.APP_NAME }}"
-  
+              
+    stop-build:
+      runs-on: ubuntu-latest
+      if: ${{ needs.check-app.outputs.dir_exists }} == '0'
+      needs: [check-app]
+      steps:
+        - name: Debug
+          run: |
+            echo ${{ needs.check-app.outputs.dir_exists }}
+            echo ${{ needs.check-app.outputs.dir }}
+
     go-test:
       if: ${{ needs.check-app.outputs.dir_exists }} == '0'
       runs-on: ubuntu-latest
