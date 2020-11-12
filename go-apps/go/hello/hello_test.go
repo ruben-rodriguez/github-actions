@@ -23,7 +23,7 @@ var _ = Describe("Greeter Test", func() {
 		})
 		Expect(err).To(BeNil())
 		Expect(out).To(Equal(&GreeterOutput{
-			Message: "Hello, Ruben",
+			Message: "Hello, Rubenn",
 		}))
 	})
 })
